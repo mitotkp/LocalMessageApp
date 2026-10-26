@@ -1,0 +1,444 @@
+:root {
+    --bg: #0a0d0a;
+    --screen: #0d110d;
+    --panel: #0f150f;
+    --green: #33ff66;
+    --green-dim: #1fa847;
+    --green-faint: #12361d;
+    --amber: #f2b33d;
+    --amber-dim: #a87a24;
+    --text: #b8f5c6;
+    --muted: #5f9a6d;
+    --danger: #ff5f56;
+    --glow: 0 0 6px rgb(51 255 102 / 0.55);
+    --glow-strong: 0 0 4px rgb(51 255 102 / 0.8), 0 0 14px rgb(51 255 102 / 0.35);
+    --font: "Cascadia Mono", "JetBrains Mono", Consolas, "SF Mono", Menlo, ui-monospace, monospace;
+    color-scheme: dark;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    padding: 16px;
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.6 var(--font);
+}
+
+/* CRT scanlines over the whole screen */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0) 0 2px, rgb(0 0 0 / 0.18) 2px 3px);
+    z-index: 10;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+::selection {
+    background: var(--green);
+    color: var(--bg);
+}
+
+/* The terminal window */
+.terminal {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 18px 24px;
+    border: 1px solid var(--amber);
+    border-radius: 4px;
+    background: var(--screen);
+    box-shadow: 0 0 0 1px rgb(242 179 61 / 0.15), 0 0 30px rgb(51 255 102 / 0.05) inset;
+}
+
+.topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding-bottom: 14px;
+}
+
+.prompt-line .user,
+.prompt-line .host {
+    color: var(--amber);
+}
+
+.prompt-line .cmd {
+    color: var(--text);
+}
+
+.status {
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.status-dot {
+    color: var(--muted);
+}
+
+.status[data-tone="ok"] { color: var(--green); text-shadow: var(--glow); }
+.status[data-tone="ok"] .status-dot { color: var(--green); }
+.status[data-tone="wait"] { color: var(--amber); }
+.status[data-tone="wait"] .status-dot { color: var(--amber); animation: blink 1s steps(1) infinite; }
+.status[data-tone="bad"] { color: var(--danger); }
+.status[data-tone="bad"] .status-dot { color: var(--danger); }
+
+/* Setup view */
+.setup {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: 8px;
+}
+
+.banner {
+    margin: 4px 0 0;
+    overflow: hidden;
+    color: var(--green);
+    font-size: clamp(5px, 1.3vw, 12px);
+    line-height: 1.1;
+    text-shadow: var(--glow-strong);
+}
+
+.version {
+    margin: 6px 0 2px;
+    color: var(--amber);
+}
+
+.muted {
+    margin: 0;
+    color: var(--muted);
+}
+
+.columns {
+    display: grid;
+    /* minmax(0, ...) lets the columns shrink below their content, so nothing overflows sideways */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+}
+
+.panel {
+    padding: 14px 16px 16px;
+    border: 1px solid var(--green-dim);
+    background: var(--panel);
+    box-shadow: 0 0 10px rgb(51 255 102 / 0.06);
+}
+
+.panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.panel-title {
+    margin: 0 0 8px;
+    color: var(--green);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-shadow: var(--glow);
+}
+
+.panel-head .panel-title {
+    margin: 0;
+}
+
+.panel .muted {
+    margin-bottom: 12px;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Prompt-style inputs: "> label: ____" */
+.field {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.field-prompt {
+    flex-shrink: 0;
+    color: var(--amber);
+}
+
+.input,
+.composer-input {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 2px;
+    border: 0;
+    border-bottom: 1px dashed var(--green-dim);
+    background: transparent;
+    color: var(--green);
+    font: inherit;
+    caret-color: var(--green);
+    text-shadow: var(--glow);
+}
+
+.input::placeholder,
+.composer-input::placeholder {
+    color: var(--muted);
+    opacity: 0.7;
+    text-shadow: none;
+}
+
+.input:focus,
+.composer-input:focus {
+    outline: none;
+    border-bottom: 1px solid var(--green);
+}
+
+.composer-input:disabled {
+    cursor: not-allowed;
+}
+
+/* Buttons look like [ COMMANDS ] and invert on hover */
+.button {
+    padding: 6px 12px;
+    border: 1px solid var(--green-dim);
+    background: transparent;
+    color: var(--green);
+    font: inherit;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.button:hover:not(:disabled),
+.button:focus-visible {
+    outline: none;
+    background: var(--green);
+    color: var(--bg);
+    box-shadow: var(--glow-strong);
+}
+
+.button.primary {
+    border-color: var(--green);
+    text-shadow: var(--glow);
+}
+
+.button.primary:hover:not(:disabled) {
+    text-shadow: none;
+}
+
+.button.danger {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.button.danger:hover:not(:disabled),
+.button.danger:focus-visible {
+    background: var(--danger);
+    color: var(--bg);
+    box-shadow: 0 0 12px rgb(255 95 86 / 0.45);
+}
+
+.button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Room table */
+.room-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.room-table th {
+    padding: 6px 8px;
+    background: var(--green);
+    color: var(--bg);
+    font-weight: 700;
+    text-align: left;
+    box-shadow: var(--glow);
+}
+
+.room-table td {
+    padding: 7px 8px;
+    border: 1px solid var(--green-faint);
+    color: var(--text);
+    overflow-wrap: anywhere;
+}
+
+.room-table td:last-child {
+    width: 1%;
+    text-align: right;
+}
+
+.room-table tbody tr:not(.empty):hover {
+    background: var(--green-faint);
+}
+
+.room-table .empty td {
+    padding: 16px 8px;
+    color: var(--muted);
+    text-align: center;
+}
+
+.room-table .button {
+    padding: 2px 8px;
+}
+
+.error {
+    margin: 0;
+    padding: 8px 12px;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+}
+
+.error::before {
+    content: "ERR! ";
+    font-weight: 700;
+}
+
+/* Chat view */
+.chat {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.chat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--green-dim);
+    background: var(--panel);
+}
+
+.chat-title {
+    min-width: 0;
+}
+
+.chat-title h2 {
+    margin: 0;
+    color: var(--green);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    text-shadow: var(--glow);
+    overflow-wrap: anywhere;
+}
+
+.messages {
+    flex: 1;
+    margin: 0;
+    padding: 14px 2px;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.messages li {
+    padding: 1px 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.line-time {
+    color: var(--muted);
+}
+
+.line-author {
+    color: var(--green);
+    font-weight: 700;
+    text-shadow: var(--glow);
+}
+
+.own .line-author {
+    color: var(--amber);
+    text-shadow: none;
+}
+
+.line-system {
+    color: var(--muted);
+    font-style: italic;
+}
+
+.composer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--green-faint);
+}
+
+.composer-prompt {
+    flex-shrink: 0;
+    max-width: 45%;
+    overflow: hidden;
+    color: var(--amber);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.composer-input {
+    border-bottom-color: transparent;
+}
+
+.chat .error {
+    margin-top: 10px;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .status-dot {
+        animation: none !important;
+    }
+}
+
+@media (max-width: 680px) {
+    body {
+        padding: 8px;
+    }
+
+    .terminal {
+        padding: 12px 14px;
+    }
+
+    .columns {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .prompt-line .cmd {
+        display: none;
+    }
+
+    .composer {
+        flex-wrap: wrap;
+    }
+
+    .composer-prompt {
+        max-width: 100%;
+        width: 100%;
+    }
+}

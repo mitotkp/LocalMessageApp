@@ -1,0 +1,19 @@
+{
+  "name": "localmessageapp",
+  "version": "1.0.0",
+  "description": "Demo app for having private conversations on a local network",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "web": "node --env-file-if-exists=.env src/web.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "bonjour-service": "^1.4.4",
+    "tweetnacl": "^1.0.3"
+  }
+}

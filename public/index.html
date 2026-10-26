@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LocalMessage</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js"></script>
+</head>
+<body>
+    <div class="terminal">
+        <header class="topbar">
+            <span class="prompt-line"><span class="user">guest</span>@<span class="host">localmessage</span>:~$ <span class="cmd">./localmessage --secure</span></span>
+            <span id="status" class="status" data-tone="muted">[ <span class="status-dot">●</span> <span id="status-text">OFFLINE</span> ]</span>
+        </header>
+
+        <main id="setup-view" class="setup">
+            <section class="intro">
+                <pre class="banner" aria-label="LocalMessage">██╗      ██████╗  ██████╗ █████╗ ██╗       ███╗   ███╗███████╗ ██████╗
+██║     ██╔═══██╗██╔════╝██╔══██╗██║       ████╗ ████║██╔════╝██╔════╝
+██║     ██║   ██║██║     ███████║██║       ██╔████╔██║███████╗██║  ███╗
+██║     ██║   ██║██║     ██╔══██║██║       ██║╚██╔╝██║╚════██║██║   ██║
+███████╗╚██████╔╝╚██████╗██║  ██║███████╗  ██║ ╚═╝ ██║███████║╚██████╔╝
+╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝  ╚═╝     ╚═╝╚══════╝ ╚═════╝</pre>
+                <p class="version">v1.0.0 · curve25519-xsalsa20-poly1305 · LAN only</p>
+                <p class="muted">-- Private chat on your local network. Messages are end-to-end encrypted. --</p>
+            </section>
+
+            <section class="panel">
+                <h2 class="panel-title">// IDENTITY</h2>
+                <label class="field">
+                    <span class="field-prompt">&gt; nickname:</span>
+                    <input id="nick" class="input" maxlength="32" placeholder="type your nickname" autocomplete="off" spellcheck="false">
+                </label>
+            </section>
+
+            <div class="columns">
+                <section class="panel">
+                    <h2 class="panel-title">// HOST A ROOM</h2>
+                    <p class="muted">Other people on your network will see it and can join.</p>
+                    <form id="create-form" class="stack">
+                        <label class="field">
+                            <span class="field-prompt">&gt; room:</span>
+                            <input id="room-name" class="input" maxlength="60" placeholder="optional" autocomplete="off" spellcheck="false">
+                        </label>
+                        <button type="submit" class="button primary">[ CREATE ROOM ]</button>
+                    </form>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-head">
+                        <h2 class="panel-title">// SCAN NETWORK</h2>
+                        <button id="search-btn" type="button" class="button">[ SCAN ]</button>
+                    </div>
+                    <table class="room-table">
+                        <thead>
+                            <tr><th>ROOM</th><th>HOST</th><th></th></tr>
+                        </thead>
+                        <tbody id="room-list">
+                            <tr class="empty"><td colspan="3">Run [ SCAN ] to look for rooms on your network.</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+
+            <p id="setup-error" class="error" role="alert" hidden></p>
+        </main>
+
+        <main id="chat-view" class="chat" hidden>
+            <div class="chat-head">
+                <div class="chat-title">
+                    <h2>SESSION: <span id="room-title"></span></h2>
+                    <p id="peer-info" class="muted"></p>
+                </div>
+                <button id="leave-btn" type="button" class="button danger">[ LEAVE ]</button>
+            </div>
+
+            <ol id="messages" class="messages" aria-live="polite"></ol>
+
+            <form id="composer" class="composer">
+                <label for="message-input" id="composer-prompt" class="composer-prompt">guest@room:~$</label>
+                <input id="message-input" class="composer-input" maxlength="2000" placeholder="write a message..." autocomplete="off" spellcheck="false">
+                <button type="submit" class="button primary">[ SEND ]</button>
+            </form>
+            <p id="chat-error" class="error" role="alert" hidden></p>
+        </main>
+    </div>
+</body>
+</html>
